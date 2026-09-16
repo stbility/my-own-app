@@ -23,6 +23,7 @@
 ## 目录
 
 - [项目简介](#项目简介)
+- [界面预览](#界面预览)
 - [核心模块](#核心模块)
 - [技术栈](#技术栈)
 - [环境要求](#环境要求)
@@ -38,6 +39,37 @@
 `my-own-app` 是一个专为独立开发者、自媒体创作者及自由职业者打造的个人一体化工作生活看板。系统覆盖日常生产力、项目研发、业务咨询、身心健康及休闲娱乐等核心场景。
 
 所有数据**完全保存在本地浏览器沙盒**中，无需配置外部数据库，无隐私外泄风险，且支持完整无损的 JSON 备份导出与导入恢复。
+
+---
+
+## 界面预览
+
+> 📸 **统一环境说明**：以下三张界面预览均捕获自同一个本地工作台、同一份演示数据，以及统一的 **1440 × 900** 浏览器标准视口。
+
+### 1. 今日计划与专注执行 (Daily Plan)
+聚焦今日最高价值的核心战役三大要事（Big 3），分时段推进全天时间块日程排期，右侧内嵌工作（25m）/ 休息（5m）深度专注时钟，防止精力耗散。
+
+<div align="center">
+  <img src="docs/screenshots/01-daily-plan.png" alt="今日计划与专注执行" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08);" />
+</div>
+
+<br />
+
+### 2. 自媒体内容生产管线与多维统计 (Content)
+全流程覆盖“突发灵感 ➔ 脚本撰写 ➔ 录制剪辑 ➔ 发布复盘”四阶段内容看板，内建发布视频播放量、点赞数、互动率折线柱状对比及多平台分发占比可视化图表。
+
+<div align="center">
+  <img src="docs/screenshots/02-content-pipeline.png" alt="自媒体内容生产管线与数据统计" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08);" />
+</div>
+
+<br />
+
+### 3. 健身训练与体型管理日历 (Fitness)
+日历化追踪每月锻炼打卡天数与累计完成总次数（Reps），直观呈现每日分化部位（胸部/三头、背部/二头、腿臀等）动作组数、负荷重量与有效容量打卡详情。
+
+<div align="center">
+  <img src="docs/screenshots/03-fitness-calendar.png" alt="健身训练与体型管理日历看板" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08);" />
+</div>
 
 ---
 
