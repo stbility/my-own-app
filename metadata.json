@@ -1,6 +1,6 @@
 {
-  "name": "个人工作生活专属APP",
-  "description": "只供个人使用的单机本地工作生活专属管理系统，集成首页总览、今日计划、自媒体、开发、咨询、健身、饮食、游戏及数据备份。",
+  "name": "智一工作台",
+  "description": "本地运行、数据自持的个人工作与生活管理应用",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -105,22 +105,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse 
       <div className="h-16 px-4 flex items-center justify-between border-b border-neutral-800/80">
         {!isCollapsed ? (
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-bold text-sm">
-              专
-            </div>
+            <img
+              src="/brand-icon.jpg"
+              alt="智一工作台"
+              referrerPolicy="no-referrer"
+              className="w-8 h-8 rounded-xl object-cover shrink-0 shadow-xs border border-white/10"
+            />
             <div className="flex flex-col truncate">
               <span className="text-sm font-semibold tracking-wide text-neutral-100 truncate">
-                工作生活控制中枢
+                智一工作台
               </span>
               <span className="text-[10px] text-neutral-400 truncate">
-                单机本地 · 专属控制台
+                本地运行 · 数据自持
               </span>
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 font-bold text-sm">
-            专
-          </div>
+          <img
+            src="/brand-icon.jpg"
+            alt="智一工作台"
+            referrerPolicy="no-referrer"
+            className="mx-auto w-8 h-8 rounded-xl object-cover shrink-0 shadow-xs border border-white/10"
+          />
         )}
 
         <button
