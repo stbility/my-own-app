@@ -15,15 +15,20 @@ import {
   Award,
   ChevronRight,
 } from 'lucide-react';
+import { WorkoutCalendar } from '../components/common/WorkoutCalendar';
 
 export const FitnessView: React.FC = () => {
   const { data, addWorkoutLog, updateWorkoutLog, deleteWorkoutLog, showToast } = useApp();
 
   const todayStr = getTodayDateString();
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'logger'>('calendar');
 
   // Active workout for selected date
-  const currentWorkout = data.workouts.find((w) => w.date === selectedDate) || data.workouts[0];
+  let currentWorkout = data.workouts.find((w) => w.date === selectedDate);
+  if (!currentWorkout && selectedDate === todayStr) {
+    currentWorkout = data.workouts[0];
+  }
 
   // Forms
   const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
@@ -153,7 +158,7 @@ export const FitnessView: React.FC = () => {
             健身训练与体型管理
           </h1>
           <p className="text-sm text-neutral-400 mt-1">
-            分化周期排期、动作组数负重精确打卡与体重追踪
+            日历化追踪每天锻炼部位、动作与重复次数，支持组数负重精确打卡
           </p>
         </div>
 
@@ -174,7 +179,17 @@ export const FitnessView: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setIsAddExerciseOpen(true)}
+            onClick={() => {
+              if (!currentWorkout) {
+                addWorkoutLog({
+                  date: selectedDate,
+                  splitType: '推力日 (胸/肩/肱三)',
+                  exercises: [],
+                  bodyWeightKg: Number(weightInput) || 72.5,
+                });
+              }
+              setIsAddExerciseOpen(true);
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -182,6 +197,62 @@ export const FitnessView: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* View Switcher Tabs */}
+      <div className="flex items-center gap-1 bg-neutral-950 p-1 rounded-xl border border-neutral-800 text-xs w-fit">
+        <button
+          id="fitness-calendar-tab-btn"
+          onClick={() => setActiveTab('calendar')}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'calendar'
+              ? 'bg-emerald-500 text-neutral-950 font-semibold shadow-xs'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          训练日历看板（部位/动作/重复次数）
+        </button>
+        <button
+          id="fitness-logger-tab-btn"
+          onClick={() => setActiveTab('logger')}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'logger'
+              ? 'bg-emerald-500 text-neutral-950 font-semibold shadow-xs'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          <Dumbbell className="w-3.5 h-3.5" />
+          动作打卡工位（{selectedDate}）
+        </button>
+      </div>
+
+      {/* Tab 1: Workout Calendar View */}
+      {activeTab === 'calendar' && (
+        <WorkoutCalendar
+          workouts={data.workouts}
+          dietLogs={data.dietLogs}
+          currentModule="fitness"
+          selectedDate={selectedDate}
+          onSelectDate={(d) => setSelectedDate(d)}
+          onNavigateToWorkout={(d) => {
+            setSelectedDate(d);
+            const exists = data.workouts.some((w) => w.date === d);
+            if (!exists) {
+              addWorkoutLog({
+                date: d,
+                splitType: '推力日 (胸/肩/肱三)',
+                exercises: [],
+                bodyWeightKg: Number(weightInput) || 72.5,
+              });
+            }
+            setActiveTab('logger');
+          }}
+        />
+      )}
+
+      {/* Tab 2: Daily Logger View */}
+      {activeTab === 'logger' && (
+      <div className="space-y-6">
 
       {/* Top Banner: Split Selection & Stats */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
@@ -327,6 +398,8 @@ export const FitnessView: React.FC = () => {
           </div>
         )}
       </div>
+      </div>
+      )}
 
       {/* Modal: Add Exercise */}
       {isAddExerciseOpen && (

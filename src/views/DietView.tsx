@@ -15,12 +15,15 @@ import {
   Check,
   RotateCcw,
   Sparkles,
+  Calendar,
 } from 'lucide-react';
+import { WorkoutCalendar } from '../components/common/WorkoutCalendar';
 
 export const DietView: React.FC = () => {
   const { data, addWaterIntake, resetWaterIntake, addDietLog, deleteDietLog } = useApp();
 
   const todayStr = getTodayDateString();
+  const [activeTab, setActiveTab] = useState<'calendar' | 'meals'>('calendar');
   const water = data.waterRecords[todayStr] || { date: todayStr, currentMl: 0, targetMl: 2000 };
   const waterPercent = Math.min(100, Math.round((water.currentMl / water.targetMl) * 100));
 
@@ -88,7 +91,7 @@ export const DietView: React.FC = () => {
             饮食记录与饮水追踪
           </h1>
           <p className="text-sm text-neutral-400 mt-1">
-            坚持科学饮水、记录三餐摄入与身心饱腹舒适感
+            日历化协同追踪每日训练部位、动作负荷与每日三餐热量、饱腹舒适度
           </p>
         </div>
 
@@ -100,6 +103,47 @@ export const DietView: React.FC = () => {
           记录三餐打卡
         </button>
       </div>
+
+      {/* View Switcher Tabs */}
+      <div className="flex items-center gap-1 bg-neutral-950 p-1 rounded-xl border border-neutral-800 text-xs w-fit">
+        <button
+          id="diet-calendar-tab-btn"
+          onClick={() => setActiveTab('calendar')}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'calendar'
+              ? 'bg-sky-500 text-neutral-950 font-semibold shadow-xs'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          锻炼与饮食日历（部位/动作/重复次数/三餐）
+        </button>
+        <button
+          id="diet-meals-tab-btn"
+          onClick={() => setActiveTab('meals')}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeTab === 'meals'
+              ? 'bg-sky-500 text-neutral-950 font-semibold shadow-xs'
+              : 'text-neutral-400 hover:text-neutral-200'
+          }`}
+        >
+          <UtensilsCrossed className="w-3.5 h-3.5" />
+          今日三餐打卡与饮水
+        </button>
+      </div>
+
+      {/* Tab 1: Combined Calendar View */}
+      {activeTab === 'calendar' && (
+        <WorkoutCalendar
+          workouts={data.workouts}
+          dietLogs={data.dietLogs}
+          currentModule="diet"
+        />
+      )}
+
+      {/* Tab 2: Meals & Water Tracker */}
+      {activeTab === 'meals' && (
+      <div className="space-y-6">
 
       {/* Top Banner: Water Tracker Card */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xs">
@@ -245,6 +289,8 @@ export const DietView: React.FC = () => {
           </div>
         )}
       </div>
+      </div>
+      )}
 
       {/* Modal: Add Meal */}
       {isAddMealOpen && (

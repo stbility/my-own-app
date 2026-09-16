@@ -38,6 +38,7 @@ export const DevWorkView: React.FC = () => {
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const [isAddIssueOpen, setIsAddIssueOpen] = useState(false);
   const [isAddSnippetOpen, setIsAddSnippetOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<DevProject | null>(null);
 
   // Form states
   const [projName, setProjName] = useState('');
@@ -197,69 +198,91 @@ export const DevWorkView: React.FC = () => {
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {data.devProjects.map((proj) => {
-            const isSelected = selectedProjectId === proj.id;
-            const projectIssues = data.devIssues.filter((i) => i.projectId === proj.id);
-            const unresolvedCount = projectIssues.filter((i) => i.status !== 'resolved').length;
+        {data.devProjects.length === 0 ? (
+          <div className="p-8 bg-neutral-900/60 border border-dashed border-neutral-800 rounded-2xl text-center space-y-2">
+            <FolderGit2 className="w-8 h-8 text-neutral-600 mx-auto" />
+            <p className="text-sm font-medium text-neutral-300">暂无本地工程仓库</p>
+            <p className="text-xs text-neutral-500">点击右上角「新建项目」开始录入与跟踪您的代码工程</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {data.devProjects.map((proj) => {
+              const isSelected = selectedProjectId === proj.id;
+              const projectIssues = data.devIssues.filter((i) => i.projectId === proj.id);
+              const unresolvedCount = projectIssues.filter((i) => i.status !== 'resolved').length;
 
-            return (
-              <div
-                key={proj.id}
-                onClick={() => setSelectedProjectId(proj.id)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
-                  isSelected
-                    ? 'bg-neutral-900 border-cyan-500/50 shadow-md ring-1 ring-cyan-500/30'
-                    : 'bg-neutral-900/80 hover:bg-neutral-850 border-neutral-800 hover:border-neutral-700'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Folder className="w-4 h-4 text-cyan-400 shrink-0" />
-                      <h4 className="text-sm font-semibold text-neutral-100 truncate">{proj.name}</h4>
+              return (
+                <div
+                  key={proj.id}
+                  onClick={() => setSelectedProjectId(proj.id)}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-neutral-900 border-cyan-500/50 shadow-md ring-1 ring-cyan-500/30'
+                      : 'bg-neutral-900/80 hover:bg-neutral-850 border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <Folder className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <h4 className="text-sm font-semibold text-neutral-100 truncate">{proj.name}</h4>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {unresolvedCount > 0 && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/20">
+                            {unresolvedCount} 待办
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          id={`delete-project-${proj.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProjectToDelete(proj);
+                          }}
+                          className="p-1 text-neutral-500 hover:text-rose-400 hover:bg-neutral-800 rounded transition-colors"
+                          title="删除此项目"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                    {unresolvedCount > 0 && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/20 shrink-0">
-                        {unresolvedCount} 待办
-                      </span>
-                    )}
+
+                    <p className="text-xs text-neutral-400 mt-2 line-clamp-2">{proj.description}</p>
+
+                    <div className="flex flex-wrap gap-1 mt-3">
+                      {proj.techStack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-1.5 py-0.5 rounded text-[10px] bg-neutral-950 text-neutral-400 border border-neutral-800"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
-                  <p className="text-xs text-neutral-400 mt-2 line-clamp-2">{proj.description}</p>
-
-                  <div className="flex flex-wrap gap-1 mt-3">
-                    {proj.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-1.5 py-0.5 rounded text-[10px] bg-neutral-950 text-neutral-400 border border-neutral-800"
+                  <div className="mt-4 pt-3 border-t border-neutral-850 space-y-2 text-xs">
+                    {/* Local Path with Copy */}
+                    <div className="flex items-center justify-between text-neutral-400">
+                      <span className="font-mono text-[11px] truncate flex-1 mr-2">{proj.localPath}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(`cd ${proj.localPath}`, `path-${proj.id}`);
+                        }}
+                        className="p-1 hover:text-white rounded transition-colors"
+                        title="复制 cd 路径"
                       >
-                        {tech}
-                      </span>
-                    ))}
+                        {copiedSnippetId === `path-${proj.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="mt-4 pt-3 border-t border-neutral-850 space-y-2 text-xs">
-                  {/* Local Path with Copy */}
-                  <div className="flex items-center justify-between text-neutral-400">
-                    <span className="font-mono text-[11px] truncate flex-1 mr-2">{proj.localPath}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(`cd ${proj.localPath}`, `path-${proj.id}`);
-                      }}
-                      className="p-1 hover:text-white rounded transition-colors"
-                      title="复制 cd 路径"
-                    >
-                      {copiedSnippetId === `path-${proj.id}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Main Dual Tab: Issues / Code Snippets */}
@@ -647,6 +670,62 @@ export const DevWorkView: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Delete Project Confirmation */}
+      {projectToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+          onClick={() => setProjectToDelete(null)}
+        >
+          <div
+            className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-rose-400">
+              <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-neutral-100">确认删除该工程项目？</h3>
+                <p className="text-xs text-neutral-400">此操作无法撤销</p>
+              </div>
+            </div>
+
+            <div className="bg-neutral-950 p-3.5 rounded-xl border border-neutral-800/80 space-y-1.5 text-xs">
+              <div className="text-neutral-200 font-medium">{projectToDelete.name}</div>
+              <div className="text-neutral-500 font-mono text-[11px] truncate">{projectToDelete.localPath}</div>
+              <p className="text-rose-400/90 text-[11px] pt-1.5 border-t border-neutral-850">
+                ⚠️ 注意：删除此项目将同步清除关联的 {data.devIssues.filter((i) => i.projectId === projectToDelete.id).length} 条需求与 Bug 记录。
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setProjectToDelete(null)}
+                className="px-4 py-2 bg-neutral-800 hover:bg-neutral-750 text-neutral-300 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                id="confirm-delete-project-btn"
+                onClick={() => {
+                  const idToDelete = projectToDelete.id;
+                  deleteDevProject(idToDelete);
+                  if (selectedProjectId === idToDelete) {
+                    setSelectedProjectId('all');
+                  }
+                  setProjectToDelete(null);
+                }}
+                className="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-neutral-950 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+              >
+                确认删除
+              </button>
+            </div>
           </div>
         </div>
       )}

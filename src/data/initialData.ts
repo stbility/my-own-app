@@ -162,6 +162,32 @@ export const getInitialData = (): AppData => {
         platforms: ['B站', '小红书'],
         createdAt: `${today}`,
       },
+      {
+        id: 'cnt-5',
+        title: '为什么我不推荐普通人学微服务？单体优先与模块化演进',
+        stage: 'published',
+        targetAudience: '后端架构师、全栈工程师',
+        outlineNotes: '用真实业务演进案例论述单体在中小团队的巨大效率优势。',
+        platforms: ['B站', '知乎', '抖音'],
+        publishDate: '2026-09-02',
+        views: 24500,
+        likes: 1860,
+        reviewNotes: '播放量破2万，知乎转发量高，评论区讨论热烈。',
+        createdAt: '2026-08-30',
+      },
+      {
+        id: 'cnt-6',
+        title: '程序员极简升降桌与双屏护眼工作台搭建心得',
+        stage: 'published',
+        targetAudience: '久坐办公族、数字游民',
+        outlineNotes: '线缆收纳技巧、显示器支架与灯光配置。',
+        platforms: ['小红书', 'B站'],
+        publishDate: '2026-08-25',
+        views: 8900,
+        likes: 620,
+        reviewNotes: '小红书收藏率超高，适合多产出类似设备类图文视频。',
+        createdAt: '2026-08-20',
+      },
     ],
 
     // 开发工作台
@@ -395,6 +421,65 @@ export const getInitialData = (): AppData => {
           },
         ],
         createdAt: '2026-09-13',
+      },
+      {
+        id: 'wo-3',
+        date: '2026-09-14',
+        splitType: '腿部/臀部',
+        bodyWeightKg: 72.6,
+        note: '深蹲加量冲刺，股四头肌泵感极强。',
+        completed: true,
+        exercises: [
+          {
+            id: 'ex-6',
+            name: '杠铃深蹲',
+            sets: [
+              { id: 's16', setNumber: 1, weightKg: 70, reps: 12, completed: true },
+              { id: 's17', setNumber: 2, weightKg: 85, reps: 10, completed: true },
+              { id: 's18', setNumber: 3, weightKg: 95, reps: 8, completed: true },
+              { id: 's19', setNumber: 4, weightKg: 100, reps: 6, completed: true },
+            ],
+          },
+          {
+            id: 'ex-7',
+            name: '哑铃罗马尼亚硬拉',
+            sets: [
+              { id: 's20', setNumber: 1, weightKg: 28, reps: 12, completed: true },
+              { id: 's21', setNumber: 2, weightKg: 32, reps: 10, completed: true },
+              { id: 's22', setNumber: 3, weightKg: 32, reps: 10, completed: true },
+            ],
+          },
+        ],
+        createdAt: '2026-09-14',
+      },
+      {
+        id: 'wo-4',
+        date: '2026-09-15',
+        splitType: '肩部/手臂',
+        bodyWeightKg: 72.4,
+        note: '哑铃推肩力量平稳，侧平举超级组力竭。',
+        completed: true,
+        exercises: [
+          {
+            id: 'ex-8',
+            name: '坐姿哑铃推肩',
+            sets: [
+              { id: 's23', setNumber: 1, weightKg: 18, reps: 12, completed: true },
+              { id: 's24', setNumber: 2, weightKg: 20, reps: 10, completed: true },
+              { id: 's25', setNumber: 3, weightKg: 22, reps: 8, completed: true },
+            ],
+          },
+          {
+            id: 'ex-9',
+            name: '站姿哑铃侧平举',
+            sets: [
+              { id: 's26', setNumber: 1, weightKg: 10, reps: 15, completed: true },
+              { id: 's27', setNumber: 2, weightKg: 10, reps: 15, completed: true },
+              { id: 's28', setNumber: 3, weightKg: 10, reps: 12, completed: true },
+            ],
+          },
+        ],
+        createdAt: '2026-09-15',
       },
     ],
 

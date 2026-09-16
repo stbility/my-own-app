@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ContentItem, ContentStage, SocialPlatform } from '../types';
+import { ContentStatsChart } from '../components/content/ContentStatsChart';
 import {
   Clapperboard,
   Plus,
@@ -15,11 +16,14 @@ import {
   Eye,
   Heart,
   Check,
+  BarChart3,
+  LayoutGrid,
 } from 'lucide-react';
 
 export const ContentView: React.FC = () => {
   const { data, addContent, updateContentStage, updateContent, deleteContent } = useApp();
 
+  const [activeTab, setActiveTab] = useState<'board' | 'stats'>('board');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newAudience, setNewAudience] = useState('');
@@ -109,18 +113,76 @@ export const ContentView: React.FC = () => {
           </p>
         </div>
 
-        <button
-          id="add-content-modal-btn"
-          onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-500 hover:bg-rose-400 text-neutral-950 font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          新建选题
-        </button>
+        <div className="flex items-center gap-2.5">
+          {/* Segmented Tab Switcher */}
+          <div className="inline-flex p-1 bg-neutral-900 border border-neutral-800 rounded-xl text-xs">
+            <button
+              id="content-tab-board-btn"
+              onClick={() => setActiveTab('board')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                activeTab === 'board'
+                  ? 'bg-neutral-800 text-neutral-100 shadow-xs'
+                  : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-rose-400" />
+              <span>管线看板</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-neutral-950 text-neutral-400 border border-neutral-800">
+                {data.contents.length}
+              </span>
+            </button>
+
+            <button
+              id="content-tab-stats-btn"
+              onClick={() => setActiveTab('stats')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                activeTab === 'stats'
+                  ? 'bg-rose-500 text-neutral-950 font-semibold shadow-xs'
+                  : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>视频数据可视化</span>
+              <span
+                className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                  activeTab === 'stats'
+                    ? 'bg-neutral-950/20 text-neutral-950 font-bold'
+                    : 'bg-neutral-950 text-rose-400 border border-neutral-800'
+                }`}
+              >
+                {data.contents.filter((c) => c.stage === 'published').length}
+              </span>
+            </button>
+          </div>
+
+          <button
+            id="add-content-modal-btn"
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-rose-500 hover:bg-rose-400 text-neutral-950 font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            新建选题
+          </button>
+        </div>
       </div>
 
-      {/* 4-Stage Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+      {/* View Content: Stats Chart or Board */}
+      {activeTab === 'stats' ? (
+        <ContentStatsChart
+          contents={data.contents}
+          onSelectVideo={(id) => {
+            const item = data.contents.find((c) => c.id === id);
+            if (item) {
+              setEditingItem(item);
+              setReviewViews(item.views || 0);
+              setReviewLikes(item.likes || 0);
+              setReviewNotes(item.reviewNotes || '');
+            }
+          }}
+        />
+      ) : (
+        /* 4-Stage Kanban Board */
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
         {stages.map((stage) => {
           const itemsInStage = data.contents.filter((c) => c.stage === stage.id);
           return (
@@ -258,6 +320,7 @@ export const ContentView: React.FC = () => {
           );
         })}
       </div>
+      )}
 
       {/* New Content Modal */}
       {isAddModalOpen && (
