@@ -7,6 +7,9 @@
     <a href="https://github.com/stbility/my-own-app">
       <img src="https://img.shields.io/badge/GitHub-stbility%2Fmy--own--app-181717?style=flat-square&logo=github" alt="GitHub Repository" />
     </a>
+    <a href="https://github.com/stbility/my-own-app/actions/workflows/ci.yml">
+      <img src="https://github.com/stbility/my-own-app/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
+    </a>
     <img src="https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react" alt="React 19" />
     <img src="https://img.shields.io/badge/TypeScript-5.8-blue?style=flat-square&logo=typescript" alt="TypeScript 5.8" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS v4" />
