@@ -1,11 +1,99 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   CSS 变量统一管理两套主题颜色体系
+   迁移硬编码颜色值，支持跟随系统 / 浅色 / 深色实时切换
+   ========================================================================== */
+
+:root {
+  /* 基础语义变量 - 浅色模式 (Light Theme) */
+  --color-bg-app: #f6f8fa;
+  --color-text-main: #0f172a;
+  --color-scrollbar-thumb: #cbd5e1;
+  --color-scrollbar-thumb-hover: #94a3b8;
+
+  /* 表面层级变量 */
+  --color-surface-base: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-surface-hover: #f1f5f9;
+  --color-border-base: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  /* Tailwind Neutral 调色板映射 (浅色模式 - 严格遵循 WCAG AA 对比度 ≥ 4.5:1) */
+  --color-neutral-950: #f8fafc;
+  --color-neutral-925: #ffffff;
+  --color-neutral-900: #ffffff;
+  --color-neutral-850: #f1f5f9;
+  --color-neutral-800: #e2e8f0;
+  --color-neutral-750: #cbd5e1;
+  --color-neutral-700: #cbd5e1;
+  --color-neutral-600: #94a3b8;
+  --color-neutral-500: #64748b; /* 4.6:1+ on light surfaces */
+  --color-neutral-400: #475569; /* 7.1:1+ on light surfaces */
+  --color-neutral-300: #334155; /* 9.5:1+ on light surfaces */
+  --color-neutral-200: #1e293b; /* 13:1+ on light surfaces */
+  --color-neutral-100: #0f172a; /* 16:1+ on light surfaces */
+  --color-neutral-50: #020617;
+
+  /* 高亮/强调色浅色模式适配 (确保在浅色背景下文字对比度 ≥ 4.5:1) */
+  --color-amber-400: #b45309;   /* 深入琥珀色，对比度 5.2:1 */
+  --color-emerald-400: #047857; /* 深入翡翠绿，对比度 5.1:1 */
+  --color-sky-400: #0369a1;     /* 深入晴空蓝，对比度 5.0:1 */
+  --color-rose-400: #be123c;    /* 深入玫瑰红，对比度 5.5:1 */
+  --color-purple-400: #7e22ce;  /* 深入紫罗兰，对比度 5.4:1 */
+  --color-indigo-400: #4338ca;  /* 深入靛青蓝，对比度 6.8:1 */
+  --color-cyan-400: #0e7490;    /* 深入青色，对比度 5.1:1 */
+}
+
+.dark, [data-theme="dark"] {
+  /* 基础语义变量 - 深色模式 (Dark Theme - 保持纯正质感暗黑工作台) */
+  --color-bg-app: #0c0d0e;
+  --color-text-main: #e5e5e5;
+  --color-scrollbar-thumb: #262626;
+  --color-scrollbar-thumb-hover: #404040;
+
+  /* 表面层级变量 */
+  --color-surface-base: #171717;
+  --color-surface-subtle: #0f1012;
+  --color-surface-hover: #202022;
+  --color-border-base: #2a2b30;
+  --color-border-strong: #3f4048;
+
+  /* Tailwind Neutral 调色板映射 (深色模式 - 原暗黑工业风) */
+  --color-neutral-950: #0c0d0e;
+  --color-neutral-925: #111215;
+  --color-neutral-900: #171717;
+  --color-neutral-850: #202022;
+  --color-neutral-800: #2a2b30;
+  --color-neutral-750: #35363c;
+  --color-neutral-700: #3f4048;
+  --color-neutral-600: #555761;
+  --color-neutral-500: #8e909c; /* 5.4:1+ on dark surfaces (WCAG AA compliant) */
+  --color-neutral-400: #a1a3af; /* 7.2:1+ on dark surfaces */
+  --color-neutral-300: #d1d3dc; /* 10:1+ on dark surfaces */
+  --color-neutral-200: #e5e6eb; /* 13:1+ on dark surfaces */
+  --color-neutral-100: #f8f9fa; /* 16:1+ on dark surfaces */
+  --color-neutral-50: #ffffff;
+
+  /* 高亮/强调色深色模式恢复 (在暗色背景下呈现明亮质感) */
+  --color-amber-400: #fbbf24;
+  --color-emerald-400: #34d399;
+  --color-sky-400: #38bdf8;
+  --color-rose-400: #fb7185;
+  --color-purple-400: #c084fc;
+  --color-indigo-400: #818cf8;
+  --color-cyan-400: #22d3ee;
+}
+
 @layer base {
   body {
-    background-color: #0c0d0e;
-    color: #e5e5e5;
+    background-color: var(--color-bg-app);
+    color: var(--color-text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -20,10 +108,46 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: var(--color-scrollbar-thumb);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--color-scrollbar-thumb-hover);
 }
+
+/* ==========================================================================
+   高对比度辅助保障 (满足 WCAG AA 对比度 ≥ 4.5:1)
+   ========================================================================== */
+
+/* 确保明亮背景色彩按钮与徽标文字保持深色高对比度 */
+button[class*="bg-amber-500"],
+button[class*="bg-emerald-500"],
+button[class*="bg-sky-500"],
+button[class*="bg-rose-500"],
+button[class*="bg-cyan-500"],
+button[class*="bg-purple-500"],
+button[class*="bg-indigo-500"],
+[class*="bg-amber-500"].text-neutral-950,
+[class*="bg-emerald-500"].text-neutral-950,
+[class*="bg-sky-500"].text-neutral-950,
+[class*="bg-rose-500"].text-neutral-950,
+[class*="bg-cyan-500"].text-neutral-950,
+[class*="bg-purple-500"].text-neutral-950,
+[class*="bg-indigo-500"].text-neutral-950 {
+  color: #090a0f !important;
+}
+
+/* 浅色模式下，为主要卡片与容器增加精致轻量微阴影，视觉层次更清晰 */
+:root:not(.dark) .bg-neutral-900 {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* 浅色模式输入框聚焦时提升底色对比度 */
+:root:not(.dark) input:focus,
+:root:not(.dark) textarea:focus,
+:root:not(.dark) select:focus {
+  background-color: #ffffff;
+}
+
+

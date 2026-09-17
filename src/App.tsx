@@ -24,6 +24,7 @@ import { DataSettingsView } from './views/DataSettingsView';
 const MainLayout: React.FC = () => {
   const { activeModule } = useApp();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const renderActiveView = () => {
     switch (activeModule) {
@@ -55,16 +56,18 @@ const MainLayout: React.FC = () => {
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Main Right Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
         {/* Sticky Header with Date, Clock, Local Status, Scratchpad Shortcut */}
-        <Header />
+        <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
 
         {/* Scrollable View Canvas */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="max-w-7xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 md:p-8 min-w-0">
+          <div className="max-w-7xl mx-auto w-full min-w-0">
             {renderActiveView()}
           </div>
         </main>

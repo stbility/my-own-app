@@ -48,7 +48,9 @@ export function loadAppData(customStorage?: Storage): AppData {
       codeSnippets: Array.isArray(parsed.codeSnippets) ? parsed.codeSnippets : defaultData.codeSnippets,
       consultingClients: Array.isArray(parsed.consultingClients) ? parsed.consultingClients : defaultData.consultingClients,
       consultingRecords: Array.isArray(parsed.consultingRecords) ? parsed.consultingRecords : defaultData.consultingRecords,
-      workouts: Array.isArray(parsed.workouts) ? parsed.workouts : defaultData.workouts,
+      workouts: (Array.isArray(parsed.workouts) ? parsed.workouts : defaultData.workouts).filter(
+        (w: any) => (w.exercises && w.exercises.length > 0) || (w.note && String(w.note).trim().length > 0)
+      ),
       dietLogs: Array.isArray(parsed.dietLogs)
         ? parsed.dietLogs.map((d: any) => ({
             ...d,
@@ -190,20 +192,27 @@ export function clearAppData(customStorage?: Storage): void {
 }
 
 /**
- * 统计本地存储使用情况和各模块实体数量
+ * 统计本地存储使用情况和各模块实体数量与空间占用
  */
 export function getStorageStats(data: AppData, customStorage?: Storage): {
   usedBytes: number;
   usedFormatted: string;
   quotaPercentage: number;
   counts: Record<string, number>;
+  moduleSizes: Record<string, { bytes: number; formatted: string }>;
 } {
   const jsonString = JSON.stringify(data);
   const usedBytes = new Blob([jsonString]).size;
-  const usedFormatted = usedBytes < 1024 ? `${usedBytes} B` : `${(usedBytes / 1024).toFixed(1)} KB`;
+  const formatSize = (bytes: number) => (bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`);
+  const usedFormatted = formatSize(usedBytes);
   // 浏览器 LocalStorage 典型配额约为 5MB (5 * 1024 * 1024 字节)
   const quotaBytes = 5 * 1024 * 1024;
   const quotaPercentage = Math.min(100, Number(((usedBytes / quotaBytes) * 100).toFixed(2)));
+
+  // 仅统计有效训练记录（有动作明细或包含有效心得备注的记录，排除空壳数据）
+  const validWorkouts = (data.workouts || []).filter(
+    (w) => (w.exercises && w.exercises.length > 0) || (w.note && w.note.trim().length > 0)
+  );
 
   const counts = {
     quickNotes: data.quickNotes.length,
@@ -215,9 +224,65 @@ export function getStorageStats(data: AppData, customStorage?: Storage): {
     codeSnippets: data.codeSnippets.length,
     consultingClients: data.consultingClients.length,
     consultingRecords: data.consultingRecords.length,
-    workouts: data.workouts.length,
+    workouts: validWorkouts.length,
     dietLogs: data.dietLogs.length,
     games: data.games.length,
+  };
+
+  const getModuleBytes = (items: any) => {
+    if (!items || (Array.isArray(items) && items.length === 0)) return 0;
+    return new Blob([JSON.stringify(items)]).size;
+  };
+
+  const moduleSizes: Record<string, { bytes: number; formatted: string }> = {
+    quickNotes: {
+      bytes: getModuleBytes(data.quickNotes),
+      formatted: formatSize(getModuleBytes(data.quickNotes)),
+    },
+    bigThree: {
+      bytes: getModuleBytes(data.bigThree),
+      formatted: formatSize(getModuleBytes(data.bigThree)),
+    },
+    dailyTasks: {
+      bytes: getModuleBytes(data.dailyTasks),
+      formatted: formatSize(getModuleBytes(data.dailyTasks)),
+    },
+    contents: {
+      bytes: getModuleBytes(data.contents),
+      formatted: formatSize(getModuleBytes(data.contents)),
+    },
+    devProjects: {
+      bytes: getModuleBytes(data.devProjects),
+      formatted: formatSize(getModuleBytes(data.devProjects)),
+    },
+    devIssues: {
+      bytes: getModuleBytes(data.devIssues),
+      formatted: formatSize(getModuleBytes(data.devIssues)),
+    },
+    codeSnippets: {
+      bytes: getModuleBytes(data.codeSnippets),
+      formatted: formatSize(getModuleBytes(data.codeSnippets)),
+    },
+    consultingClients: {
+      bytes: getModuleBytes(data.consultingClients),
+      formatted: formatSize(getModuleBytes(data.consultingClients)),
+    },
+    consultingRecords: {
+      bytes: getModuleBytes(data.consultingRecords),
+      formatted: formatSize(getModuleBytes(data.consultingRecords)),
+    },
+    workouts: {
+      bytes: getModuleBytes(validWorkouts),
+      formatted: formatSize(getModuleBytes(validWorkouts)),
+    },
+    dietLogs: {
+      bytes: getModuleBytes(data.dietLogs),
+      formatted: formatSize(getModuleBytes(data.dietLogs)),
+    },
+    games: {
+      bytes: getModuleBytes(data.games),
+      formatted: formatSize(getModuleBytes(data.games)),
+    },
   };
 
   return {
@@ -225,5 +290,6 @@ export function getStorageStats(data: AppData, customStorage?: Storage): {
     usedFormatted,
     quotaPercentage,
     counts,
+    moduleSizes,
   };
 }

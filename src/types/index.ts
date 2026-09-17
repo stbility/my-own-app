@@ -240,3 +240,8 @@ export interface BackupDataSchema {
   exportedAt: string;
   data: AppData;
 }
+
+// 主题模式与解析状态类型
+export type ThemeMode = 'system' | 'light' | 'dark';
+export type ResolvedTheme = 'light' | 'dark';
+

@@ -20,6 +20,8 @@ import {
   GameItem,
   QuickNote,
   MeetingLog,
+  ThemeMode,
+  ResolvedTheme,
 } from '../types';
 import {
   loadAppData,
@@ -28,6 +30,8 @@ import {
   STORAGE_KEY,
 } from '../services/storage';
 import { getInitialData, getTodayDateString } from '../data/initialData';
+
+export const THEME_STORAGE_KEY = 'my_life_hub_theme_mode';
 
 export interface ToastMessage {
   id: number;
@@ -44,6 +48,11 @@ interface AppContextType {
   lastSavedText: string;
   toast: ToastMessage | null;
   showToast: (message: string, type?: 'success' | 'info' | 'warn') => void;
+
+  // 主题三态与解析
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
+  resolvedTheme: ResolvedTheme;
 
   // 1. 闪念备忘
   addQuickNote: (content: string) => void;
@@ -88,6 +97,7 @@ interface AppContextType {
   addWorkout: (wo: Omit<WorkoutLog, 'id' | 'createdAt'>) => void;
   updateWorkout: (id: string, updates: Partial<WorkoutLog>) => void;
   deleteWorkout: (id: string) => void;
+  clearAllWorkouts: () => void;
   addWorkoutLog: (wo: Omit<WorkoutLog, 'id' | 'createdAt'>) => void;
   updateWorkoutLog: (id: string, updates: Partial<WorkoutLog>) => void;
   deleteWorkoutLog: (id: string) => void;
@@ -119,6 +129,78 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isScratchpadOpen, setIsScratchpadOpen] = useState(false);
   const [lastSavedText, setLastSavedText] = useState('已就绪');
   const [toast, setToast] = useState<ToastMessage | null>(null);
+
+  // 主题三态管理：'system' | 'light' | 'dark'，默认跟随系统
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode;
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          return saved;
+        }
+      } catch {
+        // fallback
+      }
+    }
+    return 'system';
+  });
+
+  // 系统原生明暗偏好检测
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'dark';
+  });
+
+  // 监听操作系统深浅色偏好变更，实时响应
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
+    };
+    
+    // 初始化同步一次
+    updateSystemTheme(mediaQuery);
+
+    const handler = (e: MediaQueryListEvent) => {
+      updateSystemTheme(e);
+    };
+
+    mediaQuery.addEventListener('change', handler);
+    return () => {
+      mediaQuery.removeEventListener('change', handler);
+    };
+  }, []);
+
+  // 计算当前最终生效的主题 (resolvedTheme)
+  const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
+
+  // 将主题实时同步至 html documentElement (class 与 data-theme 属性)
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    if (resolvedTheme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+    }
+  }, [resolvedTheme]);
+
+  // 手动切换主题并持久化至本地存储
+  const setTheme = useCallback((newTheme: ThemeMode) => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'warn' = 'success') => {
     const id = Date.now();
@@ -518,6 +600,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('训练记录已移除', 'info');
   }, [updateData, showToast]);
 
+  const clearAllWorkouts = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      workouts: [],
+    }));
+    showToast('全部健身训练数据已清空', 'info');
+  }, [updateData, showToast]);
+
   // 7. 饮食与饮水
   const addDietLog = useCallback((diet: Omit<DietLog, 'id' | 'createdAt'>) => {
     const newDiet: DietLog = {
@@ -719,6 +809,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addWorkout,
         updateWorkout,
         deleteWorkout,
+        clearAllWorkouts,
         addWorkoutLog,
         updateWorkoutLog,
         deleteWorkoutLog,
@@ -737,6 +828,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         resetDataToInitial,
         resetToDefaultData,
         clearAllData,
+
+        theme,
+        setTheme,
+        resolvedTheme,
       }}
     >
       {children}

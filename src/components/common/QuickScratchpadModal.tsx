@@ -32,7 +32,7 @@ export const QuickScratchpadModal: React.FC = () => {
   return (
     <div
       id="scratchpad-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4"
       onClick={() => setIsScratchpadOpen(false)}
     >
       <div
@@ -41,7 +41,7 @@ export const QuickScratchpadModal: React.FC = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-900/80">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-neutral-800 bg-neutral-900/80">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Sparkles className="w-4 h-4" />
@@ -62,7 +62,7 @@ export const QuickScratchpadModal: React.FC = () => {
         </div>
 
         {/* Input area */}
-        <div className="p-6 border-b border-neutral-800 bg-neutral-950/40">
+        <div className="p-4 sm:p-6 border-b border-neutral-800 bg-neutral-950/40">
           <textarea
             id="scratchpad-textarea-input"
             value={inputContent}
@@ -73,7 +73,7 @@ export const QuickScratchpadModal: React.FC = () => {
             className="w-full bg-neutral-900 border border-neutral-700/80 rounded-xl p-3.5 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors resize-none"
             autoFocus
           />
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs text-neutral-500">
               已输入 {inputContent.length} 字 · 自动保存至本地
             </span>
@@ -90,7 +90,7 @@ export const QuickScratchpadModal: React.FC = () => {
         </div>
 
         {/* Notes list */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
               现有便签 ({data.quickNotes.length})
@@ -112,7 +112,7 @@ export const QuickScratchpadModal: React.FC = () => {
                   {note.content}
                 </p>
 
-                <div className="mt-3 pt-2.5 border-t border-neutral-800/80 flex items-center justify-between text-xs">
+                <div className="mt-3 pt-2.5 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="text-neutral-500">{note.createdAt}</span>
 
                   <div className="flex items-center gap-1.5">

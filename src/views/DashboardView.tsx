@@ -451,14 +451,16 @@ export const DashboardView: React.FC = () => {
                   <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">健身计划</span>
                 </div>
                 <span className="text-[11px] text-neutral-500 font-mono">
-                  {todayWorkout?.splitType || '推力日'}
+                  {todayWorkout?.splitType || '暂无训练'}
                 </span>
               </div>
               <h3 className="text-sm font-semibold text-neutral-100 group-hover:text-amber-300 transition-colors line-clamp-1">
-                今日排期: {todayWorkout?.splitType || '自定义分化'}
+                {todayWorkout ? `今日排期: ${todayWorkout.splitType}` : '今日暂无训练记录'}
               </h3>
               <p className="text-xs text-neutral-400 mt-1 line-clamp-2">
-                已规划 {todayWorkout?.exercises.length || 0} 个动作，体重记录: {todayWorkout?.bodyWeightKg || 72} kg
+                {todayWorkout
+                  ? `已规划 ${todayWorkout.exercises.length} 个动作，体重记录: ${todayWorkout.bodyWeightKg} kg`
+                  : '点击进入开始规划今日动作与组数打卡'}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-500 group-hover:text-neutral-300">

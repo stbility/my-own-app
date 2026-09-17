@@ -21,6 +21,7 @@ import {
   Layers,
   Repeat,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 
 interface WorkoutCalendarProps {
@@ -30,6 +31,7 @@ interface WorkoutCalendarProps {
   selectedDate?: string;
   onSelectDate?: (date: string) => void;
   onNavigateToWorkout?: (date: string) => void;
+  onDeleteWorkout?: (id: string) => void;
 }
 
 export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
@@ -39,6 +41,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
   selectedDate: initialSelectedDate,
   onSelectDate,
   onNavigateToWorkout,
+  onDeleteWorkout,
 }) => {
   const todayStr = getTodayDateString();
   const [selectedDate, setSelectedDate] = useState<string>(initialSelectedDate || todayStr);
@@ -205,7 +208,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
       </div>
 
       {/* Weekdays Bar */}
-      <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-medium text-neutral-400 border-b border-neutral-800 pb-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-[11px] sm:text-xs font-medium text-neutral-400 border-b border-neutral-800 pb-2">
         <span>周一</span>
         <span>周二</span>
         <span>周三</span>
@@ -216,7 +219,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
       </div>
 
       {/* 7-Columns Calendar Matrix */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {calendarDays.map((day) => {
           const workout = workouts.find((w) => w.date === day.dateString);
           const summary = summarizeWorkoutDay(workout);
@@ -230,7 +233,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                 setSelectedDate(day.dateString);
                 onSelectDate?.(day.dateString);
               }}
-              className={`min-h-[108px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between text-left ${
+              className={`min-h-[72px] sm:min-h-[108px] p-1 sm:p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between text-left overflow-hidden ${
                 isSelected
                   ? 'bg-neutral-850 border-emerald-500/60 ring-2 ring-emerald-500/30 shadow-lg'
                   : day.isCurrentMonth
@@ -241,9 +244,9 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
               {/* Day Number and Today indicator */}
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-xs font-mono font-medium ${
+                  className={`text-[10px] sm:text-xs font-mono font-medium ${
                     day.isToday
-                      ? 'w-5 h-5 rounded-full bg-emerald-500 text-neutral-950 flex items-center justify-center font-bold text-[11px]'
+                      ? 'w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 text-neutral-950 flex items-center justify-center font-bold text-[10px] sm:text-[11px]'
                       : isSelected
                       ? 'text-emerald-300 font-bold'
                       : day.isCurrentMonth
@@ -256,7 +259,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
 
                 {summary.hasWorkout && (
                   <span
-                    className={`w-2 h-2 rounded-full ${
+                    className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                       summary.workout?.completed ? 'bg-emerald-400 ring-2 ring-emerald-400/20' : 'bg-amber-400'
                     }`}
                     title={summary.workout?.completed ? '今日训练已全部完成' : '今日有训练计划'}
@@ -265,12 +268,12 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
               </div>
 
               {/* Workout Content in Day Cell */}
-              <div className="mt-1 flex-1 flex flex-col justify-center space-y-1">
+              <div className="mt-0.5 sm:mt-1 flex-1 flex flex-col justify-center space-y-0.5 sm:space-y-1 min-w-0">
                 {summary.hasWorkout ? (
                   <>
                     {/* 部位 */}
                     <div
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-semibold truncate border ${getSplitColor(
+                      className={`px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded text-[9px] sm:text-[10px] font-semibold truncate border ${getSplitColor(
                         summary.splitType
                       )}`}
                       title={`部位: ${summary.splitType}`}
@@ -278,27 +281,30 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                       {summary.splitType}
                     </div>
 
-                    {/* 动作与重复次数简略 */}
-                    <div className="text-[10px] text-neutral-300 leading-tight truncate">
+                    {/* 动作与重复次数简略 (大屏显示具体动作，小屏显示精简组数) */}
+                    <div className="hidden sm:block text-[10px] text-neutral-300 leading-tight truncate">
                       {summary.exerciseSummaries[0]?.name || '锻炼动作'}
                       {summary.exercisesCount > 1 && ` +${summary.exercisesCount - 1}`}
                     </div>
 
-                    <div className="text-[10px] font-mono text-emerald-400/90 font-medium">
-                      {summary.totalReps > 0
-                        ? `${summary.completedReps > 0 ? summary.completedReps : summary.totalReps}次 • ${summary.totalSets}组`
-                        : `${summary.totalSets}组`}
+                    <div className="text-[9px] sm:text-[10px] font-mono text-emerald-400/90 font-medium truncate">
+                      <span className="sm:hidden">{summary.totalSets}组</span>
+                      <span className="hidden sm:inline">
+                        {summary.totalReps > 0
+                          ? `${summary.completedReps > 0 ? summary.completedReps : summary.totalReps}次 • ${summary.totalSets}组`
+                          : `${summary.totalSets}组`}
+                      </span>
                     </div>
                   </>
                 ) : (
-                  <div className="text-[10px] text-neutral-600 italic py-1">
+                  <div className="text-[9px] sm:text-[10px] text-neutral-600 italic py-0.5 sm:py-1 truncate">
                     {day.isCurrentMonth ? '休息日' : ''}
                   </div>
                 )}
 
                 {/* Diet indicator if present */}
                 {currentModule === 'diet' && dayMeals.length > 0 && (
-                  <div className="pt-0.5 border-t border-neutral-850 flex items-center gap-1 text-[9px] text-sky-400/90 truncate">
+                  <div className="pt-0.5 border-t border-neutral-850 flex items-center gap-1 text-[8px] sm:text-[9px] text-sky-400/90 truncate">
                     <UtensilsCrossed className="w-2.5 h-2.5 shrink-0" />
                     <span>{dayMeals.length} 餐</span>
                   </div>
@@ -333,15 +339,31 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
             </div>
           </div>
 
-          {/* Action button if in fitness view */}
+          {/* Action buttons if in fitness view */}
           {onNavigateToWorkout && (
-            <button
-              onClick={() => onNavigateToWorkout(selectedDate)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-            >
-              <span>{selectedWorkoutSummary.hasWorkout ? '进入打卡工位' : '创建该日训练'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {selectedWorkout && onDeleteWorkout && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`确定要删除 ${selectedDate} 的全部训练记录吗？`)) {
+                      onDeleteWorkout(selectedWorkout.id);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-900 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 border border-neutral-800 hover:border-rose-500/30 font-medium text-xs rounded-xl transition-colors cursor-pointer"
+                  title="删除该日训练打卡记录"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>删除</span>
+                </button>
+              )}
+              <button
+                onClick={() => onNavigateToWorkout(selectedDate)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                <span>{selectedWorkoutSummary.hasWorkout ? '进入打卡工位' : '创建该日训练'}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           )}
         </div>
 
@@ -363,7 +385,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                 </span>
               </div>
 
-              <div className="flex items-center gap-4 text-neutral-300 font-mono text-xs">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-neutral-300 font-mono text-xs">
                 <span>动作数: <strong className="text-white">{selectedWorkoutSummary.exercisesCount}</strong> 个</span>
                 <span>总组数: <strong className="text-white">{selectedWorkoutSummary.totalSets}</strong> 组</span>
                 <span>
@@ -392,7 +414,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                   </div>
 
                   {/* Sets & Repetitions Breakdown */}
-                  <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
                     {ex.details.map((set) => (
                       <div
                         key={set.setNumber}

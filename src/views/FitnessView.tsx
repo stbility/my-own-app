@@ -18,17 +18,14 @@ import {
 import { WorkoutCalendar } from '../components/common/WorkoutCalendar';
 
 export const FitnessView: React.FC = () => {
-  const { data, addWorkoutLog, updateWorkoutLog, deleteWorkoutLog, showToast } = useApp();
+  const { data, addWorkoutLog, updateWorkoutLog, deleteWorkoutLog, clearAllWorkouts, showToast } = useApp();
 
   const todayStr = getTodayDateString();
   const [selectedDate, setSelectedDate] = useState<string>(todayStr);
   const [activeTab, setActiveTab] = useState<'calendar' | 'logger'>('calendar');
 
   // Active workout for selected date
-  let currentWorkout = data.workouts.find((w) => w.date === selectedDate);
-  if (!currentWorkout && selectedDate === todayStr) {
-    currentWorkout = data.workouts[0];
-  }
+  const currentWorkout = data.workouts.find((w) => w.date === selectedDate);
 
   // Forms
   const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
@@ -75,7 +72,7 @@ export const FitnessView: React.FC = () => {
 
   const handleAddExercise = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentWorkout || !exerciseName.trim()) return;
+    if (!exerciseName.trim()) return;
 
     const sets: ExerciseSet[] = [];
     for (let i = 1; i <= targetSets; i++) {
@@ -94,12 +91,28 @@ export const FitnessView: React.FC = () => {
       sets,
     };
 
-    updateWorkoutLog(currentWorkout.id, {
-      exercises: [...currentWorkout.exercises, newEx],
-    });
+    if (currentWorkout) {
+      updateWorkoutLog(currentWorkout.id, {
+        exercises: [...currentWorkout.exercises, newEx],
+      });
+    } else {
+      addWorkoutLog({
+        date: selectedDate,
+        splitType: '推力日 (胸/肩/肱三)',
+        exercises: [newEx],
+        bodyWeightKg: Number(weightInput) || 72.5,
+      });
+    }
 
     setExerciseName('');
     setIsAddExerciseOpen(false);
+    showToast('训练动作已添加', 'success');
+  };
+
+  const handleDeleteCurrentWorkout = () => {
+    if (!currentWorkout) return;
+    deleteWorkoutLog(currentWorkout.id);
+    showToast(`已删除 ${currentWorkout.date} 的全部训练记录`, 'info');
   };
 
   const handleToggleSet = (exId: string, setIndex: number) => {
@@ -143,9 +156,16 @@ export const FitnessView: React.FC = () => {
 
   const handleDeleteExercise = (exId: string) => {
     if (!currentWorkout) return;
-    updateWorkoutLog(currentWorkout.id, {
-      exercises: currentWorkout.exercises.filter((ex) => ex.id !== exId),
-    });
+    const remainingExercises = currentWorkout.exercises.filter((ex) => ex.id !== exId);
+    if (remainingExercises.length === 0) {
+      deleteWorkoutLog(currentWorkout.id);
+      showToast('动作已删除，该日训练记录已清空', 'info');
+    } else {
+      updateWorkoutLog(currentWorkout.id, {
+        exercises: remainingExercises,
+      });
+      showToast('训练动作已删除', 'info');
+    }
   };
 
   return (
@@ -178,18 +198,39 @@ export const FitnessView: React.FC = () => {
             <span className="text-neutral-500">kg</span>
           </div>
 
+          {currentWorkout && (
+            <button
+              onClick={() => {
+                if (window.confirm(`确定要彻底删除 ${selectedDate} 的训练记录吗？`)) {
+                  handleDeleteCurrentWorkout();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-900 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 border border-neutral-800 hover:border-rose-500/30 font-medium text-xs rounded-xl transition-all cursor-pointer"
+              title="删除该日训练打卡记录"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>删除记录</span>
+            </button>
+          )}
+
+          {data.workouts.length > 0 && (
+            <button
+              id="clear-all-workouts-btn"
+              onClick={() => {
+                if (window.confirm('确定要清空全部健身训练记录吗？清空后数据设置模块中的统计将实时同步归零。')) {
+                  clearAllWorkouts();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-900 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 border border-neutral-800 hover:border-rose-500/30 font-medium text-xs rounded-xl transition-all cursor-pointer"
+              title="清空全部历史训练记录"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>清空全部数据</span>
+            </button>
+          )}
+
           <button
-            onClick={() => {
-              if (!currentWorkout) {
-                addWorkoutLog({
-                  date: selectedDate,
-                  splitType: '推力日 (胸/肩/肱三)',
-                  exercises: [],
-                  bodyWeightKg: Number(weightInput) || 72.5,
-                });
-              }
-              setIsAddExerciseOpen(true);
-            }}
+            onClick={() => setIsAddExerciseOpen(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -236,16 +277,11 @@ export const FitnessView: React.FC = () => {
           onSelectDate={(d) => setSelectedDate(d)}
           onNavigateToWorkout={(d) => {
             setSelectedDate(d);
-            const exists = data.workouts.some((w) => w.date === d);
-            if (!exists) {
-              addWorkoutLog({
-                date: d,
-                splitType: '推力日 (胸/肩/肱三)',
-                exercises: [],
-                bodyWeightKg: Number(weightInput) || 72.5,
-              });
-            }
             setActiveTab('logger');
+          }}
+          onDeleteWorkout={(id) => {
+            deleteWorkoutLog(id);
+            showToast('训练记录已删除', 'info');
           }}
         />
       )}

@@ -14,10 +14,12 @@ import {
   FileJson,
   Layers,
   Sparkles,
+  Palette,
 } from 'lucide-react';
+import { ThemeToggle } from '../components/common/ThemeToggle';
 
 export const DataSettingsView: React.FC = () => {
-  const { data, restoreFromBackup, resetToDefaultData, showToast } = useApp();
+  const { data, restoreFromBackup, resetToDefaultData, showToast, resolvedTheme } = useApp();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
@@ -121,6 +123,26 @@ export const DataSettingsView: React.FC = () => {
         className="hidden"
       />
 
+      {/* 0. Theme & Appearance Settings */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+              <Palette className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-neutral-100">界面外观与主题偏好</h3>
+              <p className="text-xs text-neutral-400 mt-0.5">三态实时切换 · 本地持久化保存 · 系统深浅色自适应</p>
+            </div>
+          </div>
+          <span className="text-xs font-mono text-neutral-400 bg-neutral-950 px-3 py-1.5 rounded-xl border border-neutral-800 self-start sm:self-auto">
+            当前生效: <strong className="text-amber-400">{resolvedTheme === 'dark' ? '深色模式' : '浅色模式'}</strong>
+          </span>
+        </div>
+
+        <ThemeToggle variant="full" />
+      </div>
+
       {/* 1. Storage Status & Volume Breakdown */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -173,55 +195,88 @@ export const DataSettingsView: React.FC = () => {
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">闪念便签</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">闪念便签</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.quickNotes?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.quickNotes} <span className="text-[10px] font-normal text-neutral-500">条</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">今日要事/日程</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">今日要事/日程</span>
+                <span className="text-[10px] font-mono text-neutral-500">
+                  {((stats.moduleSizes?.bigThree?.bytes || 0) + (stats.moduleSizes?.dailyTasks?.bytes || 0)) < 1024
+                    ? `${(stats.moduleSizes?.bigThree?.bytes || 0) + (stats.moduleSizes?.dailyTasks?.bytes || 0)} B`
+                    : `${(((stats.moduleSizes?.bigThree?.bytes || 0) + (stats.moduleSizes?.dailyTasks?.bytes || 0)) / 1024).toFixed(1)} KB`}
+                </span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.bigThree + stats.counts.dailyTasks} <span className="text-[10px] font-normal text-neutral-500">项</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">自媒体选题</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">自媒体选题</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.contents?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.contents} <span className="text-[10px] font-normal text-neutral-500">篇</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">开发工程/待办</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">开发工程/待办</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.devIssues?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.devIssues} <span className="text-[10px] font-normal text-neutral-500">个</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">代码片段/命令</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">代码片段/命令</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.codeSnippets?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.codeSnippets} <span className="text-[10px] font-normal text-neutral-500">条</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">咨询客户</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">咨询客户</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.consultingClients?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.consultingClients} <span className="text-[10px] font-normal text-neutral-500">位</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">健身训练日志</span>
-              <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">健身训练日志</span>
+                <span id="workout-storage-size" className="text-[10px] font-mono text-neutral-500">
+                  {stats.moduleSizes?.workouts?.formatted || '0 B'}
+                </span>
+              </div>
+              <span id="workout-storage-count" className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.workouts} <span className="text-[10px] font-normal text-neutral-500">次</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">饮食记录</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">饮食记录</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.dietLogs?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.dietLogs} <span className="text-[10px] font-normal text-neutral-500">餐</span>
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
-              <span className="text-neutral-500 block">游戏娱乐库</span>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">游戏娱乐库</span>
+                <span className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.games?.formatted}</span>
+              </div>
               <span className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
                 {stats.counts.games} <span className="text-[10px] font-normal text-neutral-500">款</span>
               </span>
