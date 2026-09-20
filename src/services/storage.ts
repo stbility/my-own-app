@@ -63,6 +63,7 @@ export function loadAppData(customStorage?: Storage): AppData {
         : defaultData.dietLogs,
       waterRecords: parsed.waterRecords && typeof parsed.waterRecords === 'object' ? parsed.waterRecords : defaultData.waterRecords,
       games: Array.isArray(parsed.games) ? parsed.games : defaultData.games,
+      books: Array.isArray(parsed.books) ? parsed.books : defaultData.books,
     };
   } catch (err) {
     console.warn('本地存储数据解析异常，降级加载初始预置数据:', err);
@@ -155,6 +156,7 @@ export function validateBackupJson(jsonString: string): {
         : [],
       waterRecords: targetData.waterRecords && typeof targetData.waterRecords === 'object' ? targetData.waterRecords : {},
       games: Array.isArray(targetData.games) ? targetData.games : [],
+      books: Array.isArray(targetData.books) ? targetData.books : [],
     };
 
     return { valid: true, data: cleanData };
@@ -227,6 +229,8 @@ export function getStorageStats(data: AppData, customStorage?: Storage): {
     workouts: validWorkouts.length,
     dietLogs: data.dietLogs.length,
     games: data.games.length,
+    books: (data.books || []).length,
+    bookNotes: (data.books || []).reduce((acc, b) => acc + (b.notes?.length || 0), 0),
   };
 
   const getModuleBytes = (items: any) => {
@@ -282,6 +286,10 @@ export function getStorageStats(data: AppData, customStorage?: Storage): {
     games: {
       bytes: getModuleBytes(data.games),
       formatted: formatSize(getModuleBytes(data.games)),
+    },
+    books: {
+      bytes: getModuleBytes(data.books),
+      formatted: formatSize(getModuleBytes(data.books)),
     },
   };
 

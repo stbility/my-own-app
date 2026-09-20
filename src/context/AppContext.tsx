@@ -18,6 +18,8 @@ import {
   WorkoutLog,
   DietLog,
   GameItem,
+  BookItem,
+  BookNote,
   QuickNote,
   MeetingLog,
   ThemeMode,
@@ -113,7 +115,16 @@ interface AppContextType {
   updateGame: (id: string, updates: Partial<GameItem>) => void;
   deleteGame: (id: string) => void;
 
-  // 9. 数据导入导出与重置
+  // 9. 深度阅读
+  addBook: (book: Omit<BookItem, 'id' | 'createdAt' | 'updatedAt' | 'notes'> & { initialNote?: string }) => void;
+  updateBook: (id: string, updates: Partial<BookItem>) => void;
+  deleteBook: (id: string) => void;
+  updateBookProgress: (id: string, currentPage: number) => void;
+  addBookNote: (bookId: string, note: Omit<BookNote, 'id' | 'createdAt'>) => void;
+  deleteBookNote: (bookId: string, noteId: string) => void;
+  clearAllBooks: () => void;
+
+  // 10. 数据导入导出与重置
   importBackupData: (jsonString: string) => { success: boolean; message: string };
   restoreFromBackup: (jsonString: string) => boolean;
   resetDataToInitial: () => void;
@@ -700,7 +711,156 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('游戏已从库中移除', 'info');
   }, [updateData, showToast]);
 
-  // 9. 备份导入与重置
+  // 9. 深度阅读与笔记
+  const addBook = useCallback(
+    (book: Omit<BookItem, 'id' | 'createdAt' | 'updatedAt' | 'notes'> & { initialNote?: string }) => {
+      const today = getTodayDateString();
+      const initialNotes: BookNote[] = book.initialNote?.trim()
+        ? [
+            {
+              id: `bn-${Date.now()}`,
+              content: book.initialNote.trim(),
+              createdAt: today,
+            },
+          ]
+        : [];
+
+      const newBook: BookItem = {
+        id: `book-${Date.now()}`,
+        title: book.title,
+        author: book.author,
+        category: book.category,
+        totalPages: Math.max(1, book.totalPages),
+        currentPage: Math.min(Math.max(0, book.currentPage), book.totalPages),
+        status: book.status || (book.currentPage >= book.totalPages ? 'completed' : 'reading'),
+        rating: book.rating,
+        thoughts: book.thoughts,
+        startDate: book.startDate || today,
+        completedDate: book.status === 'completed' || book.currentPage >= book.totalPages ? today : book.completedDate,
+        notes: initialNotes,
+        createdAt: today,
+        updatedAt: today,
+      };
+
+      updateData((prev) => ({
+        ...prev,
+        books: [newBook, ...(prev.books || [])],
+      }));
+      showToast(`《${newBook.title}》已收入书架 📖`);
+    },
+    [updateData, showToast]
+  );
+
+  const updateBook = useCallback(
+    (id: string, updates: Partial<BookItem>) => {
+      const today = getTodayDateString();
+      updateData((prev) => ({
+        ...prev,
+        books: (prev.books || []).map((b) => {
+          if (b.id !== id) return b;
+          const merged = { ...b, ...updates, updatedAt: today };
+          if (typeof updates.currentPage === 'number') {
+            if (updates.currentPage >= merged.totalPages && merged.status !== 'completed') {
+              merged.status = 'completed';
+              merged.completedDate = today;
+            }
+          }
+          return merged;
+        }),
+      }));
+      showToast('书籍信息已更新');
+    },
+    [updateData, showToast]
+  );
+
+  const updateBookProgress = useCallback(
+    (id: string, newCurrentPage: number) => {
+      const today = getTodayDateString();
+      updateData((prev) => ({
+        ...prev,
+        books: (prev.books || []).map((b) => {
+          if (b.id !== id) return b;
+          const validPage = Math.min(Math.max(0, newCurrentPage), b.totalPages);
+          const isFinished = validPage >= b.totalPages;
+          return {
+            ...b,
+            currentPage: validPage,
+            status: isFinished ? 'completed' : b.status === 'completed' && validPage < b.totalPages ? 'reading' : b.status,
+            completedDate: isFinished ? b.completedDate || today : validPage < b.totalPages ? undefined : b.completedDate,
+            updatedAt: today,
+          };
+        }),
+      }));
+      showToast(`阅读进度更新至第 ${newCurrentPage} 页 🔖`);
+    },
+    [updateData, showToast]
+  );
+
+  const deleteBook = useCallback(
+    (id: string) => {
+      updateData((prev) => ({
+        ...prev,
+        books: (prev.books || []).filter((b) => b.id !== id),
+      }));
+      showToast('书籍已从书架移除', 'info');
+    },
+    [updateData, showToast]
+  );
+
+  const addBookNote = useCallback(
+    (bookId: string, note: Omit<BookNote, 'id' | 'createdAt'>) => {
+      const today = getTodayDateString();
+      const newNote: BookNote = {
+        ...note,
+        id: `bn-${Date.now()}`,
+        createdAt: today,
+      };
+
+      updateData((prev) => ({
+        ...prev,
+        books: (prev.books || []).map((b) =>
+          b.id === bookId
+            ? {
+                ...b,
+                notes: [newNote, ...(b.notes || [])],
+                updatedAt: today,
+              }
+            : b
+        ),
+      }));
+      showToast('读书笔记/摘录已保存 ✍️');
+    },
+    [updateData, showToast]
+  );
+
+  const deleteBookNote = useCallback(
+    (bookId: string, noteId: string) => {
+      updateData((prev) => ({
+        ...prev,
+        books: (prev.books || []).map((b) =>
+          b.id === bookId
+            ? {
+                ...b,
+                notes: (b.notes || []).filter((n) => n.id !== noteId),
+                updatedAt: getTodayDateString(),
+              }
+            : b
+        ),
+      }));
+      showToast('笔记已删除', 'info');
+    },
+    [updateData, showToast]
+  );
+
+  const clearAllBooks = useCallback(() => {
+    updateData((prev) => ({
+      ...prev,
+      books: [],
+    }));
+    showToast('全部阅读藏书与笔记已清空', 'info');
+  }, [updateData, showToast]);
+
+  // 10. 备份导入与重置
   const importBackupData = useCallback((jsonString: string): { success: boolean; message: string } => {
     const validation = validateBackupJson(jsonString);
     if (!validation.valid || !validation.data) {
@@ -754,6 +914,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       dietLogs: [],
       waterRecords: {},
       games: [],
+      books: [],
     };
     saveAppData(empty);
     setData(empty);
@@ -822,6 +983,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addGame,
         updateGame,
         deleteGame,
+
+        addBook,
+        updateBook,
+        deleteBook,
+        updateBookProgress,
+        addBookNote,
+        deleteBookNote,
+        clearAllBooks,
 
         importBackupData,
         restoreFromBackup,

@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Droplets,
   CalendarCheck2,
+  BookOpen,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -57,6 +58,8 @@ export const DashboardView: React.FC = () => {
   const activeClient = data.consultingClients.find((c) => c.stage === 'active') || data.consultingClients[0];
   const todayWorkout = data.workouts.find((w) => w.date === todayStr) || data.workouts[0];
   const playingGame = data.games.find((g) => g.status === 'playing') || data.games[0];
+  const activeBook = (data.books || []).find((b) => b.status === 'reading') || (data.books || [])[0];
+  const readingBooksCount = (data.books || []).filter((b) => b.status === 'reading').length;
 
   const handleAddBigThree = (e: React.FormEvent) => {
     e.preventDefault();
@@ -536,6 +539,39 @@ export const DashboardView: React.FC = () => {
             </div>
             <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-500 group-hover:text-neutral-300">
               <span>查看游戏心愿与通关评级</span>
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* Card 7: Reading & Notes */}
+          <div
+            id="glance-card-reading"
+            onClick={() => setActiveModule('reading')}
+            className="p-4 rounded-2xl bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-emerald-500/40 transition-all cursor-pointer group flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">深度阅读</span>
+                </div>
+                <span className="text-[11px] text-emerald-400 font-mono font-semibold">
+                  {readingBooksCount} 本在读
+                </span>
+              </div>
+              <h3 className="text-sm font-semibold text-neutral-100 group-hover:text-emerald-300 transition-colors line-clamp-1">
+                {activeBook ? `《${activeBook.title}》` : '开启新书研读'}
+              </h3>
+              <p className="text-xs text-neutral-400 mt-1 line-clamp-2">
+                {activeBook
+                  ? `进度: ${activeBook.currentPage} / ${activeBook.totalPages} 页 (${Math.round((activeBook.currentPage / activeBook.totalPages) * 100)}%) · 沉淀 ${(activeBook.notes || []).length} 条笔记`
+                  : '添加想要研读的书目，记录精彩金句与顿悟'}
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-500 group-hover:text-neutral-300">
+              <span>进入阅读与书架</span>
               <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>

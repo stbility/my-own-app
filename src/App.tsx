@@ -18,6 +18,7 @@ import { DevWorkView } from './views/DevWorkView';
 import { ConsultingView } from './views/ConsultingView';
 import { FitnessView } from './views/FitnessView';
 import { DietView } from './views/DietView';
+import { ReadingView } from './views/ReadingView';
 import { GamingView } from './views/GamingView';
 import { DataSettingsView } from './views/DataSettingsView';
 
@@ -40,6 +41,8 @@ const MainLayout: React.FC = () => {
         return <FitnessView />;
       case 'diet':
         return <DietView />;
+      case 'reading':
+        return <ReadingView />;
       case 'gaming':
         return <GamingView />;
       case 'settings':

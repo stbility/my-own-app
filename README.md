@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react" alt="React 19" />
     <img src="https://img.shields.io/badge/TypeScript-5.8-blue?style=flat-square&logo=typescript" alt="TypeScript 5.8" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS v4" />
-    <img src="https://img.shields.io/badge/Tests-27%20Passed-emerald?style=flat-square" alt="Tests" />
+    <img src="https://img.shields.io/badge/Tests-50%20Passed-emerald?style=flat-square" alt="Tests" />
   </p>
 </div>
 
@@ -78,7 +78,7 @@
 
 ## 核心模块
 
-应用内建 9 大核心功能模块，通过左侧导航栏无缝切换：
+应用内建 10 大核心功能模块，通过左侧导航栏无缝切换：
 
 1. **首页总览 (Dashboard)**
    - 全局数据概览：今日三大要事完成度、待办事项、活跃开发工程与客户状态。
@@ -121,9 +121,15 @@
    - **游玩状态流转**：正在游玩（Playing）、心愿清单（Wishlist）、已通关/白金（Completed）。
    - **时长打卡与评测**：支持 `+1h`、`+2h` 快捷记录累计游玩时长，记录评分（1-10 分）与通关回顾。
 
-9. **数据与设置 (Data & Settings)**
+9. **阅读 (Reading)**
+   - **书库管理**：管理个人书籍、阅读进度与阅读状态。
+   - **阅读进程统计**：记录阅读进度并计算相关统计指标。
+   - **读书笔记与金句**：支持新增、查看和删除读书笔记及金句摘录。
+   - **数据联动与备份**：阅读数据纳入统一本地存储、统计与 JSON 备份恢复。
+
+10. **数据与设置 (Data & Settings)**
    - **本地存储用量仪表盘**：实时展示当前 LocalStorage 已占用字节与容量配额百分比。
-   - **完整备份导出**：一键导出包含全部 9 大模块数据的标准 JSON 备份文件。
+   - **完整备份导出**：一键导出包含全部 10 大模块数据的标准 JSON 备份文件。
    - **备份恢复导入**：支持读取外部备份 JSON，校验结构合法性并覆盖恢复本地数据。
    - **出厂预置数据重置**：一键重置回系统初始预置的高质量示例数据。
 
@@ -163,7 +169,7 @@
 
 2. **安装项目依赖**
    ```bash
-   npm install
+   npm ci
    ```
 
 3. **启动本地开发服务器**
@@ -228,7 +234,7 @@
 
 ## 测试说明
 
-本项目基于 Node.js 原生测试模块（`node:test` 与 `node:assert`）编写了 27 项完整的自动化测试，覆盖数据持久化、组件逻辑、业务模型与端到端集成：
+本项目基于 Node.js 原生测试模块（`node:test` 与 `node:assert`）编写了 50 项完整的自动化测试，覆盖数据持久化、组件逻辑、业务模型与端到端集成：
 
 ```bash
 npm test
@@ -242,3 +248,6 @@ npm test
 - `tests/problem2_content_stats.test.ts`：自媒体视频播放量、点赞数、互动率统计算法与多平台分布计算。
 - `tests/problem3_delete_dev_project.test.ts`：开发工程项目删除功能及级联清除关联任务/缺陷。
 - `tests/problem4_workout_calendar.test.ts`：健身训练月度日历网格计算、动作明细提取及饮食协同展示。
+- `tests/problem1_fitness_dark_buttons.test.ts`：健身模块深色主题按钮对比度与可见性验证。
+- `tests/problem2_reading_dark_buttons.test.ts`：阅读模块深色模式按钮、书库清空及导航显示验证。
+- `tests/reading_module.test.ts`：阅读模块书籍、阅读进度、笔记、金句、统计与备份数据验证。
