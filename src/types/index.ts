@@ -10,6 +10,7 @@ export type ModuleId =
   | 'consulting'
   | 'fitness'
   | 'diet'
+  | 'reading'
   | 'gaming'
   | 'settings';
 
@@ -214,6 +215,35 @@ export interface GameItem {
   createdAt?: string;
 }
 
+// 9. 深度阅读模块
+export type BookStatus = 'reading' | 'completed' | 'wishlist' | 'abandoned';
+
+export interface BookNote {
+  id: string;
+  pageNumber?: number;
+  chapter?: string;
+  quote?: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface BookItem {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  totalPages: number;
+  currentPage: number;
+  status: BookStatus;
+  rating?: number; // 1 - 5
+  thoughts?: string;
+  startDate?: string;
+  completedDate?: string;
+  notes: BookNote[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // 全局状态整包
 export interface AppData {
   schemaVersion: string;
@@ -231,6 +261,7 @@ export interface AppData {
   dietLogs: DietLog[];
   waterRecords: Record<string, WaterRecord>; // Key is YYYY-MM-DD
   games: GameItem[];
+  books: BookItem[];
 }
 
 // 灾备导出 JSON 格式

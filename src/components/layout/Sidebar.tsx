@@ -9,6 +9,7 @@ import {
   Briefcase,
   Dumbbell,
   UtensilsCrossed,
+  BookOpen,
   Gamepad2,
   Settings2,
   ChevronLeft,
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const devP0Count = data.devIssues.filter((i) => i.status !== 'resolved' && i.severity === 'P0').length;
   const activeClientsCount = data.consultingClients.filter((c) => c.stage === 'active' || c.stage === 'signed').length;
   const gamesPlayingCount = data.games.filter((g) => g.status === 'playing').length;
+  const readingBooksCount = (data.books || []).filter((b) => b.status === 'reading').length;
 
   interface NavItem {
     id: ModuleId;
@@ -88,6 +90,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'diet',
       label: '饮食计划',
       icon: <UtensilsCrossed className="w-4 h-4 shrink-0" />,
+    },
+    {
+      id: 'reading',
+      label: '阅读',
+      icon: <BookOpen className="w-4 h-4 shrink-0" />,
+      badge: readingBooksCount,
     },
     {
       id: 'gaming',

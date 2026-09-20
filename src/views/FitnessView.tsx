@@ -200,15 +200,12 @@ export const FitnessView: React.FC = () => {
 
           {currentWorkout && (
             <button
-              onClick={() => {
-                if (window.confirm(`确定要彻底删除 ${selectedDate} 的训练记录吗？`)) {
-                  handleDeleteCurrentWorkout();
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-900 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 border border-neutral-800 hover:border-rose-500/30 font-medium text-xs rounded-xl transition-all cursor-pointer"
+              id="delete-workout-btn"
+              onClick={handleDeleteCurrentWorkout}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-800 hover:bg-rose-950/40 text-neutral-200 hover:text-rose-200 border border-neutral-700 hover:border-rose-700/50 font-medium text-xs rounded-xl transition-all cursor-pointer shadow-xs"
               title="删除该日训练打卡记录"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
               <span>删除记录</span>
             </button>
           )}
@@ -216,15 +213,11 @@ export const FitnessView: React.FC = () => {
           {data.workouts.length > 0 && (
             <button
               id="clear-all-workouts-btn"
-              onClick={() => {
-                if (window.confirm('确定要清空全部健身训练记录吗？清空后数据设置模块中的统计将实时同步归零。')) {
-                  clearAllWorkouts();
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-900 hover:bg-rose-500/10 text-neutral-400 hover:text-rose-400 border border-neutral-800 hover:border-rose-500/30 font-medium text-xs rounded-xl transition-all cursor-pointer"
+              onClick={clearAllWorkouts}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-800 hover:bg-rose-950/40 text-neutral-200 hover:text-rose-200 border border-neutral-700 hover:border-rose-700/50 font-medium text-xs rounded-xl transition-all cursor-pointer shadow-xs"
               title="清空全部历史训练记录"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5 text-rose-400" />
               <span>清空全部数据</span>
             </button>
           )}

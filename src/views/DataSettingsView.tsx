@@ -282,6 +282,15 @@ export const DataSettingsView: React.FC = () => {
               </span>
             </div>
             <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-500 block">阅读与笔记</span>
+                <span id="reading-storage-size" className="text-[10px] font-mono text-neutral-500">{stats.moduleSizes?.books?.formatted || '0 B'}</span>
+              </div>
+              <span id="reading-storage-count" className="text-sm font-bold font-mono text-neutral-200 mt-1 block">
+                {stats.counts.books || 0} <span className="text-[10px] font-normal text-neutral-500">本 ({stats.counts.bookNotes || 0}条笔记)</span>
+              </span>
+            </div>
+            <div className="bg-neutral-950 p-3 rounded-xl border border-neutral-850">
               <span className="text-neutral-500 block">数据结构版本</span>
               <span className="text-sm font-bold font-mono text-amber-400 mt-1 block">
                 v{data.schemaVersion}
